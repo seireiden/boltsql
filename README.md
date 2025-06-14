@@ -1,61 +1,76 @@
-# 💾 SQL Playground
+# 🧮 SQL Playground by rh3xp
 
-A lightweight, in-browser SQL interpreter built using [sql.js](https://github.com/sql-js/sql.js), designed for quick practice, learning, and fun — entirely offline and without any backend!
-
-Made by **[rh3xp](https://github.com/rh3xp)** | Powered by WebAssembly and Vanilla JS.
+A fun, interactive, browser-based SQL editor built with `sql.js`, `CodeMirror`, and HTML5. This tool lets you write, run, and experiment with SQL in a local sandboxed environment — no backend required!
 
 ---
 
 ## 🚀 Features
 
-- **🔐 User Login**
-  Simple username-based login using `localStorage`. Tracks session state per user.
+- 🔐 **Login System**
+  Enter a name to start using your personal SQL playground. Your session, including query history, is stored using `localStorage`.
 
-- **🧠 Built-in Demo Database**
-  Preloaded tables:
-  - `users (id, name, age)`
-  - `orders (id, user_id, product)`
-  - `products (id, name, price)`
+- 🧠 **Syntax Highlighting**
+  Powered by [CodeMirror](https://codemirror.net/) for rich, SQL-aware editing experience.
 
-- **📦 SQL Execution Engine**
-  Uses `sql.js` (SQLite compiled to WebAssembly) to run raw SQL commands entirely in the browser.
+- 🧾 **Live Query Execution**
+  Type SQL and run it instantly on the in-browser SQLite engine.
 
-- **🧪 Query Editor**
-  - Syntax-agnostic text area
-  - Real-time output in an HTML table
-  - Instant feedback for syntax errors
+- 📜 **Query History**
+  Automatically stores your last 10 queries for each user session.
 
-- **🔄 Reset DB**
-  Reinitialize the demo database in a single click.
+- 🛠️ **Demo Database**
+  Pre-loaded tables:
+  - `users` (id, name, age)
+  - `orders` (id, user_id, product)
+  - `products` (id, name, price)
 
-- **📚 SQL Tutorial Tabs**
-  Interactive tabbed sections to learn:
-  - `SELECT`
-  - `INSERT`
-  - `JOIN`
-  With syntax, descriptions, and **mini visual diagrams**.
+- 🎓 **Built-in Tutorials**
+  Tabs showing SQL syntax for `SELECT`, `INSERT`, and `JOIN` with examples and diagrams.
 
----
+- 🧬 **Schema Visualizer**
+  View current schema and table definitions at any time.
 
-## 🌐 Hosting
+- 🏗️ **Custom Table Builder**
+  Create your own tables using simple input fields (name and columns).
 
-This is a single HTML file. Just drag & drop into any browser or upload to:
-- GitHub Pages
-- Bolt IoT static server
-- Netlify / Vercel
-- Raspberry Pi kiosk screen
+- 🔄 **Reset DB**
+  Wipe and restore the demo database with one click.
 
 ---
 
-## 📷 Screenshots
+## 🧪 Technologies Used
 
-> _(Optional: Add screenshots of the interface, query output, and tutorial tabs here.)_
+- [`sql.js`](https://github.com/sql-js/sql.js) – SQLite compiled to WebAssembly
+- [`CodeMirror`](https://codemirror.net/) – Code editor in the browser
+- Vanilla JS, HTML5, and CSS (no frameworks)
 
 ---
 
-## 📁 Project Structure
+## 📂 Project Structure
 
-```text
-sql-playground/
-├── index.html         # Single self-contained SQL editor
-├── README.md          # You're reading it
+- `index.html` – All-in-one HTML app
+- Self-contained frontend, can be hosted on:
+  - GitHub Pages
+  - Bolt IoT WiFi chip
+  - Any static file server
+
+---
+
+## 🔐 Data & Privacy
+
+This project uses only `localStorage`. No data is sent to a server. All changes and history are stored on your own device.
+
+---
+
+## 📸 Screenshots (Optional)
+
+> Add screenshots of the SQL editor, schema viewer, and query history section here.
+
+---
+
+## 👨‍💻 Made By
+
+**rh3xp** – I explore rabbit holes 🕳️, love automation, local tools, and building cool web-native projects.
+_“Made with ❤️ and local SQLite magic”_
+
+---
