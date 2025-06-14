@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>SQL Playground with Login | rh3xp Tools</title>
+        <style>
+            body {
+                font-family: "Courier New", monospace;
+                background-color: #fffaf0;
+                color: #2c2c2c;
+                margin: 0;
+                padding: 0;
+            }
+            header {
+                background-color: #d4af37;
+                color: white;
+                padding: 1rem;
+                text-align: center;
+            }
+            main {
+                padding: 1rem 2rem;
+            }
+            .hidden {
+                display: none;
+            }
+            .login-form input {
+                padding: 8px;
+                margin: 5px;
+            }
+            .tabs {
+                display: flex;
+                justify-content: center;
+                margin-top: 20px;
+                gap: 20px;
+            }
+            .tab-button {
+                padding: 10px;
+                border: none;
+                background: #ffe082;
+                cursor: pointer;
+                font-weight: bold;
+            }
+            .tab-button.active {
+                background: #ffca28;
+            }
+            .tab-content {
+                display: none;
+                padding: 10px;
+                border: 2px solid #ffcc80;
+                background: #fff3e0;
+                margin: 10px auto;
+                max-width: 800px;
+            }
+            .tab-content.active {
+                display: block;
+            }
+            textarea,
+            button,
+            table {
+                font-family: inherit;
+            }
+            textarea {
+                width: 100%;
+                height: 150px;
+                margin-top: 20px;
+                font-size: 1rem;
+                padding: 10px;
+                border: 2px solid #d4af37;
+                border-radius: 5px;
+                resize: vertical;
+            }
+            button {
+                margin: 10px 5px;
+                padding: 10px 20px;
+                background-color: #d4af37;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+            table {
+                border-collapse: collapse;
+                margin-top: 20px;
+                width: 100%;
+            }
+            th,
+            td {
+                border: 1px solid #999;
+                padding: 8px;
+                text-align: left;
+            }
+            th {
+                background-color: #f5deb3;
+            }
+            footer {
+                text-align: center;
+                font-size: 0.75rem;
+                margin-top: 40px;
+                padding: 10px;
+                color: #888;
+            }
+        </style>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js"></script>
+    </head>
+    <body>
+        <header>
+            <h1>SQL Playground by rh3xp</h1>
+            <div id="authArea">
+                <span id="welcomeText" class="hidden"
+                    >Welcome, <span id="userName"></span>!</span
+                >
+                <button onclick="logout()" class="hidden" id="logoutBtn">
+                    Logout
+                </button>
+            </div>
+        </header>
+        <main>
+            <div id="loginSection">
+                <h3>Login to access the playground</h3>
+                <div class="login-form">
+                    <input
+                        type="text"
+                        id="username"
+                        placeholder="Enter your name"
+                    />
+                    <button onclick="login()">Login</button>
+                </div>
+            </div>
+
+            <div id="playgroundSection" class="hidden">
+                <textarea id="sqlInput">SELECT * FROM users;</textarea><br />
+                <button onclick="runSQL()">▶️ Run</button>
+                <button onclick="resetDB()">🔄 Reset DB</button>
+                <div id="output"></div>
+
+                <div class="tabs">
+                    <button class="tab-button" onclick="showTab('select')">
+                        SELECT
+                    </button>
+                    <button class="tab-button" onclick="showTab('insert')">
+                        INSERT
+                    </button>
+                    <button class="tab-button" onclick="showTab('join')">
+                        JOIN
+                    </button>
+                </div>
+
+                <div class="tab-content" id="tab-select">
+                    <h4>SELECT Syntax</h4>
+                    <img
+                        src="https://i.imgur.com/ZWnD1bB.png"
+                        width="300"
+                        alt="select diagram"
+                    /><br />
+                    <code>SELECT column1, column2 FROM table_name;</code>
+                </div>
+                <div class="tab-content" id="tab-insert">
+                    <h4>INSERT Syntax</h4>
+                    <img
+                        src="https://i.imgur.com/Bac1c8I.png"
+                        width="300"
+                        alt="insert diagram"
+                    /><br />
+                    <code
+                        >INSERT INTO table_name (col1, col2) VALUES (val1,
+                        val2);</code
+                    >
+                </div>
+                <div class="tab-content" id="tab-join">
+                    <h4>JOIN Syntax</h4>
+                    <img
+                        src="https://i.imgur.com/ym0r3iV.png"
+                        width="300"
+                        alt="join diagram"
+                    /><br />
+                    <code
+                        >SELECT users.name, orders.product FROM users JOIN
+                        orders ON users.id = orders.user_id;</code
+                    >
+                </div>
+            </div>
+        </main>
+        <footer>
+            Made by rh3xp | Embedded SQL via
+            <a href="https://github.com/sql-js/sql.js" target="_blank"
+                >sql.js</a
+            >
+        </footer>
+
+        <script>
+            let db;
+
+            initSqlJs({
+                locateFile: (filename) =>
+                    `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${filename}`,
+            }).then((SQL) => {
+                db = new SQL.Database();
+                setupDemoTables();
+            });
+
+            function setupDemoTables() {
+                db.run(`
+        CREATE TABLE users (id INTEGER, name TEXT, age INTEGER);
+        INSERT INTO users VALUES (1, 'Alice', 30);
+        INSERT INTO users VALUES (2, 'Bob', 25);
+        INSERT INTO users VALUES (3, 'Charlie', 28);
+
+        CREATE TABLE orders (id INTEGER, user_id INTEGER, product TEXT);
+        INSERT INTO orders VALUES (1, 1, 'Book');
+        INSERT INTO orders VALUES (2, 2, 'Pen');
+
+        CREATE TABLE products (id INTEGER, name TEXT, price INTEGER);
+        INSERT INTO products VALUES (1, 'Book', 100);
+        INSERT INTO products VALUES (2, 'Pen', 10);
+      `);
+            }
+
+            function runSQL() {
+                const input = document.getElementById("sqlInput").value;
+                let output = document.getElementById("output");
+                try {
+                    const results = db.exec(input);
+                    if (!results.length) {
+                        output.innerHTML = "<p>No results.</p>";
+                        return;
+                    }
+                    const table = document.createElement("table");
+                    const thead = table.createTHead();
+                    const row = thead.insertRow();
+
+                    results[0].columns.forEach((col) => {
+                        const th = document.createElement("th");
+                        th.textContent = col;
+                        row.appendChild(th);
+                    });
+
+                    const tbody = table.createTBody();
+                    results[0].values.forEach((rowData) => {
+                        const row = tbody.insertRow();
+                        rowData.forEach((cell) => {
+                            const td = row.insertCell();
+                            td.textContent = cell;
+                        });
+                    });
+                    output.innerHTML = "";
+                    output.appendChild(table);
+                } catch (e) {
+                    output.innerHTML = `<p style='color:red;'>${e.message}</p>`;
+                }
+            }
+
+            function resetDB() {
+                db.close();
+                initSqlJs({
+                    locateFile: (filename) =>
+                        `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${filename}`,
+                }).then((SQL) => {
+                    db = new SQL.Database();
+                    setupDemoTables();
+                    runSQL();
+                });
+            }
+
+            function login() {
+                const name = document.getElementById("username").value;
+                if (!name) return alert("Enter your name to login.");
+                localStorage.setItem("sqlUser", name);
+                document.getElementById("loginSection").classList.add("hidden");
+                document
+                    .getElementById("playgroundSection")
+                    .classList.remove("hidden");
+                document
+                    .getElementById("welcomeText")
+                    .classList.remove("hidden");
+                document.getElementById("logoutBtn").classList.remove("hidden");
+                document.getElementById("userName").textContent = name;
+            }
+
+            function logout() {
+                localStorage.removeItem("sqlUser");
+                location.reload();
+            }
+
+            function showTab(id) {
+                document
+                    .querySelectorAll(".tab-content")
+                    .forEach((el) => el.classList.remove("active"));
+                document
+                    .querySelectorAll(".tab-button")
+                    .forEach((el) => el.classList.remove("active"));
+                document.getElementById("tab-" + id).classList.add("active");
+                event.target.classList.add("active");
+            }
+
+            document.addEventListener("DOMContentLoaded", () => {
+                const user = localStorage.getItem("sqlUser");
+                if (user) {
+                    document.getElementById("username").value = user;
+                    login();
+                }
+            });
+        </script>
+    </body>
+</html>
